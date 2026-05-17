@@ -44,7 +44,7 @@ export const AlertsProvider = ({ children }) => {
       }
 
       if (history) {
-        console.log(history);
+        console.log("Alerts Provider:", history);
         setModalNotification(history);
       }
     } catch (e) {

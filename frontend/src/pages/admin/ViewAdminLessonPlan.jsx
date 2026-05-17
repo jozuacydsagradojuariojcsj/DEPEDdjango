@@ -136,11 +136,14 @@ const ViewLessonPlan = () => {
   };
 
   useEffect(() => {
-    console.log("modalnotif in admin lesson plan:", modalNotification);
     if (loading) return;
     fetchLessonPlans();
     fetchStats();
   }, [loading]);
+
+  useEffect(() => {
+    console.log("modalnotif in admin lesson plan:", modalNotification);
+  }, [modalNotification]);
 
   const filteredData = useMemo(() => {
     return lessonPlans.filter((item) => item.quarter === activeTab);
@@ -172,16 +175,19 @@ const ViewLessonPlan = () => {
             >
               Click ⬇️
             </div>
-            <ul
+
+            <div
               tabIndex="-1"
-              className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+              className="dropdown-content menu bg-base-100 rounded-box z-1 w-50 p-2 shadow-sm"
             >
               {modalNotification.map((notif) => {
-                <li key={notif.notification_id}>
-                  <a>{notif.id}</a>
-                </li>;
+                return (
+                  <div key={notif.notification_id}>
+                    <a href={notif.link}>{notif.message}</a>
+                  </div>
+                );
               })}
-            </ul>
+            </div>
           </div>
 
           <IconButton

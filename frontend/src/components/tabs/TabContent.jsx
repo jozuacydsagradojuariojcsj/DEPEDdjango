@@ -26,7 +26,6 @@ const TabContent = ({ data, refreshLessonPlan, loading }) => {
         (item) => item.plan_id.toString() === planIdFromURL,
       );
 
-      console.log("planId", foundItem.plan_id);
       if (foundItem) {
         setSelectedItem(foundItem);
       }

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -28,6 +29,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    console.log(!originalRequest._retry);
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       console.log("error here");
@@ -43,15 +45,11 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refresh = await refreshApi.post("/auth/jwt/refresh/");
+        await refreshApi.post("/auth/jwt/refresh/");
         processQueue(null);
-        if (refresh) {
-          return api(originalRequest);
-        }
+        return api(originalRequest);
       } catch (e) {
         processQueue(e);
-        window.location.replace("/");
-        // console.error("Interceptor Error, Completely normal", e);
         return Promise.reject(e);
       } finally {
         isRefreshing = false;
