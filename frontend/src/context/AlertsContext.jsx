@@ -8,6 +8,11 @@ import React, {
 import SuccessAlert from "../components/alerts/SuccessAlert";
 import ErrorAlert from "../components/alerts/ErrorAlert";
 import Notifications from "../components/alerts/Notifications";
+import { useAuth } from "./AuthContext";
+import {
+  getPollingNotification,
+  getUnreadNotifications,
+} from "../api/notificationsApi";
 
 const AlertsContext = createContext();
 
@@ -15,6 +20,8 @@ export const AlertsProvider = ({ children }) => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [notification, setNotification] = useState([]);
+  const [modalNotification, setModalNotification] = useState([]);
+  const { user } = useAuth();
 
   const addNotification = useCallback((message) => {
     const id = Date.now() + Math.random().toString(36).substring(2, 9);
@@ -25,6 +32,25 @@ export const AlertsProvider = ({ children }) => {
       setNotification((prev) => prev.filter((n) => n.id !== id));
     }, 3000);
   }, []);
+
+  const syncAllNotifications = async () => {
+    try {
+      const response = await getPollingNotification();
+      const { unseen, history } = response.data;
+      if (unseen.data && unseen.data.length > 0) {
+        response.data.forEach((notif) => {
+          addNotification(notif.message);
+        });
+      }
+
+      if (history) {
+        console.log(history);
+        setModalNotification(history);
+      }
+    } catch (e) {
+      console.error("Notification Polling Error:", e);
+    }
+  };
 
   useEffect(() => {
     if (successMessage) {
@@ -44,6 +70,13 @@ export const AlertsProvider = ({ children }) => {
     }
   }, [errorMessage]);
 
+  useEffect(() => {
+    if (!user) return;
+    syncAllNotifications();
+    const intervalId = setInterval(syncAllNotifications, 30000);
+    return () => clearInterval(intervalId);
+  }, [addNotification, user]);
+
   const clearModalArchive = () => setModalNotifications([]);
 
   return (
@@ -54,6 +87,7 @@ export const AlertsProvider = ({ children }) => {
         setNotification,
         addNotification,
         clearModalArchive,
+        modalNotification,
       }}
     >
       {children}

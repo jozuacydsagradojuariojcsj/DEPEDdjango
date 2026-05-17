@@ -420,6 +420,35 @@ class NotificationView(APIView):
         except Exception as e:
             print("Notification Error:", e)
             return Response({'error':'Internal Server Error'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class NotificationPollingView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        user_id = request.user.UID
+
+        try:
+            if user_id:
+                unseen_notif = Notification.objects.filter(user = user_id, is_sent = False)
+                history_notif = Notification.objects.filter(user = user_id).order_by('-created_at')[:20]
+
+                history_serializer = NotificationSerializer(history_notif, many=True)
+                unseen_notif_serializer = NotificationSerializer(unseen_notif, many=True)
+
+                history_data = history_serializer.data
+                unseen_data = unseen_notif_serializer.data
+                
+
+                unseen_notif.update(is_sent=True)
+
+                return Response({'unseen':unseen_data, 'history':history_data}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error':'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print(e)
+            return Response({'error':'Internal Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
 
 
 

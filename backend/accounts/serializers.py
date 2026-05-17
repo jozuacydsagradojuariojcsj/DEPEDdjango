@@ -155,7 +155,7 @@ class ReviewedLessonPlanSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ["message","is_read","link"]
+        fields = ["message","is_read","is_sent","link"]
 
 
 

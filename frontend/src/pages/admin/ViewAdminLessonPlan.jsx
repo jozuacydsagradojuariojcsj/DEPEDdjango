@@ -36,6 +36,7 @@ const AppBar = styled(MuiAppBar)(({ theme }) => ({
 
 const ViewLessonPlan = () => {
   const { user, loading, logout } = useAuth();
+  const { modalNotification } = useAlerts();
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeSchoolYearDialog, setActiveSchoolYearDialog] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
@@ -135,6 +136,7 @@ const ViewLessonPlan = () => {
   };
 
   useEffect(() => {
+    console.log("modalnotif in admin lesson plan:", modalNotification);
     if (loading) return;
     fetchLessonPlans();
     fetchStats();
@@ -143,35 +145,6 @@ const ViewLessonPlan = () => {
   const filteredData = useMemo(() => {
     return lessonPlans.filter((item) => item.quarter === activeTab);
   }, [lessonPlans, activeTab]);
-
-  //testing for mock notifs
-  const { setNotification, addNotification } = useAlerts();
-  const mockSuccessMessages = [
-    "Quarter 1 Lesson Plan approved!",
-    "Profile updated successfully.",
-    "System connected to Django backend.",
-  ];
-
-  const triggerRandomSuccess = () => {
-    const randomMsg =
-      mockSuccessMessages[
-        Math.floor(Math.random() * mockSuccessMessages.length)
-      ];
-    addNotification(randomMsg, "success");
-  };
-
-  const simulatePollingBurst = () => {
-    // This simulates 3 notifications arriving simultaneously from backend polling
-    addNotification("Polling: Checked for updates...", "success");
-
-    setTimeout(() => {
-      addNotification("Polling: Found new school year data!", "success");
-    }, 100); // 100ms later
-
-    setTimeout(() => {
-      addNotification("Polling ALERT: Admin modified Q2 deadline!", "error");
-    }, 200); // 200ms later
-  };
 
   return (
     <div className="flex flex-col w-screen h-screen">
@@ -186,22 +159,29 @@ const ViewLessonPlan = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}></Typography>
 
           <div
-            className="btn btn-outline text-xs w-30"
+            className="btn btn-outline text-xxs w-25 sm:text-xs sm:w-30"
             onClick={() => setActiveSchoolYearDialog(true)}
           >
             Set Active School Year
           </div>
-          <div
-            className="btn btn-outline text-xs w-30"
-            onClick={triggerRandomSuccess}
-          >
-            Test for Notif
-          </div>
-          <div
-            className="btn btn-outline text-xs w-30"
-            onClick={simulatePollingBurst}
-          >
-            Polling Burst
+          <div className="dropdown dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-outline text-xxs w-10 m-1"
+            >
+              Click ⬇️
+            </div>
+            <ul
+              tabIndex="-1"
+              className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+            >
+              {modalNotification.map((notif) => {
+                <li key={notif.notification_id}>
+                  <a>{notif.id}</a>
+                </li>;
+              })}
+            </ul>
           </div>
 
           <IconButton

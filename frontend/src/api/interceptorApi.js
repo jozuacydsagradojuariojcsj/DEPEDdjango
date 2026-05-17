@@ -30,7 +30,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      printlog;
+      console.log("error here");
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -43,10 +43,11 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await refreshApi.post("/auth/jwt/refresh/");
+        const refresh = await refreshApi.post("/auth/jwt/refresh/");
         processQueue(null);
-
-        return api(originalRequest);
+        if (refresh) {
+          return api(originalRequest);
+        }
       } catch (e) {
         processQueue(e);
         window.location.replace("/");
