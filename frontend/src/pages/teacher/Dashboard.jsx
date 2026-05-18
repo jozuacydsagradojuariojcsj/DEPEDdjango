@@ -23,7 +23,7 @@ import TeacherLayout from "../../components/layouts/TeacherLayout";
 //teacher ni na dashboard
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
-  backgroundColor: "#2c8aad23",
+  backgroundColor: "#2c8aad00",
 }));
 
 export default function Dashboard({ children }) {
