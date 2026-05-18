@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-a2yjg2!e3t^#c7k+z70w61p!+v+562q4^)a6w(l1#*unn%2t^-
 DEBUG = True
 
 
-ALLOWED_HOSTS = ["https://depe-ddjango.vercel.app",]  #I add the vercel url here
+ALLOWED_HOSTS = ["yahiko247.pythonanywhere.com",]  #I add the vercel url here
 
 CORS_ALLOW_CREDENTIALS = True
 
