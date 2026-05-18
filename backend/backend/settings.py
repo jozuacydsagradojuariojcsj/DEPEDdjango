@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-a2yjg2!e3t^#c7k+z70w61p!+v+562q4^)a6w(l1#*unn%2t^-
 DEBUG = True
 
 
-ALLOWED_HOSTS = ["*",]  #I add the vercel url here
+ALLOWED_HOSTS = ["https://depe-ddjango.vercel.app",]  #I add the vercel url here
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -192,9 +192,9 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_COOKIE": "access",          
     "AUTH_COOKIE_REFRESH": "refresh",
-    "AUTH_COOKIE_SECURE": False,       # True in production (HTTPS) #I change this from false to true
+    "AUTH_COOKIE_SECURE": True,       # True in production (HTTPS) #I change this from false to true
     "AUTH_COOKIE_HTTP_ONLY": True,
-    "AUTH_COOKIE_SAMESITE": "Lax",
+    "AUTH_COOKIE_SAMESITE": "None",
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "UID",
     "USER_ID_CLAIM": "user_id",
