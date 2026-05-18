@@ -11,7 +11,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useNavigate } from "react-router-dom";
 
-import Submitlist from "../sectionpages/SubmitList";
+import Submitlist from "../sectionpages/Submitlist";
 import { Background, DEPED } from "../../assets";
 import { useParams } from "react-router-dom";
 import { useSchoolYear } from "../../context/SchoolYearProvider";

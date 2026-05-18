@@ -27,11 +27,11 @@ SECRET_KEY = 'django-insecure-a2yjg2!e3t^#c7k+z70w61p!+v+562q4^)a6w(l1#*unn%2t^-
 DEBUG = True
 
 
-ALLOWED_HOSTS = ["*",]
+ALLOWED_HOSTS = ["*",]  #I add the vercel url here
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:5173', 'http://192.168.1.30:5173']
+CORS_ALLOWED_ORIGINS = ['http://localhost:5173', 'http://192.168.1.30:5173', "https://depe-ddjango.vercel.app"]  #i add the vercel url here
 
 MEDIA_URL = "/media/"
 
@@ -138,6 +138,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# STATIC_ROOT = BASE_DIR / 'staticfiles'  # I add this line for collectstatic
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
@@ -191,7 +192,7 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_COOKIE": "access",          
     "AUTH_COOKIE_REFRESH": "refresh",
-    "AUTH_COOKIE_SECURE": False,       # True in production (HTTPS)
+    "AUTH_COOKIE_SECURE": False,       # True in production (HTTPS) #I change this from false to true
     "AUTH_COOKIE_HTTP_ONLY": True,
     "AUTH_COOKIE_SAMESITE": "Lax",
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
