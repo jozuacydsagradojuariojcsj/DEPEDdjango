@@ -1,34 +1,34 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { submitLessonPlan } from "../../api/lessonPlanApi";
 import SuccessAlert from "../alerts/SuccessAlert";
 import ErrorAlert from "../alerts/ErrorAlert";
+import { useAlerts } from "../../context/AlertsContext";
 
 const LessonPlanModal = ({ isOpen, onClose, quarter }) => {
   if (!isOpen) return null;
 
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const { setSuccessMessage, setErrorMessage } = useAlerts();
   const [lessonPlan, setLessonPlan] = useState();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (lessonPlan, quarter) => {
     setSuccessMessage(null);
     setErrorMessage(null);
+    if (!lessonPlan) {
+      setErrorMessage("No Lesson Plan Selected");
+      return;
+    }
     try {
       setLoading(true);
       const response = await submitLessonPlan(lessonPlan, quarter);
       if (response.status == 201) {
         setSuccessMessage("Submitted Lesson Plan Succesfully");
         setTimeout(() => {
-          setSuccessMessage(null);
           onClose();
         }, 3000);
       }
     } catch (e) {
       setErrorMessage("Error on submitting lesson plan");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 3000);
       console.error("Error submit:", e);
     } finally {
       setLoading(false);
@@ -37,16 +37,6 @@ const LessonPlanModal = ({ isOpen, onClose, quarter }) => {
 
   return (
     <>
-      {successMessage && (
-        <div className="toast toast-top toast-end z-1000">
-          <SuccessAlert message={successMessage} />
-        </div>
-      )}
-      {errorMessage && (
-        <div className="toast toast-top toast-end z-1000">
-          <ErrorAlert message={errorMessage} />
-        </div>
-      )}
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
         onClick={onClose}

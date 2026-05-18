@@ -1,32 +1,58 @@
 import axios from "axios";
-
-const interceptorApi = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
-  withCredentials: true,
-});
+import { useAuth } from "../context/AuthContext";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
   withCredentials: true,
 });
 
-interceptorApi.interceptors.response.use(
+const refreshApi = axios.create({
+  baseURL: import.meta.env.VITE_BASE_URL,
+  withCredentials: true,
+});
+
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    console.log(!originalRequest._retry);
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log("error here");
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(() => {
+          return api(originalRequest);
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
-        console.log("I'm hungry");
-        //add this route in the backend auth/jwt/refresh
-        await api.post("/auth/jwt/refresh/");
-
-        return interceptorApi(originalRequest);
+        await refreshApi.post("/auth/jwt/refresh/");
+        processQueue(null);
+        return api(originalRequest);
       } catch (e) {
-        console.error("Interceptor Error, Completely normal", e);
+        processQueue(e);
         return Promise.reject(e);
+      } finally {
+        isRefreshing = false;
       }
     }
 
@@ -34,4 +60,4 @@ interceptorApi.interceptors.response.use(
   },
 );
 
-export default interceptorApi;
+export default api;

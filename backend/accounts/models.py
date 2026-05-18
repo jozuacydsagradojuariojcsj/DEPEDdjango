@@ -131,6 +131,7 @@ class LessonPlan(models.Model):
             if not self.qr_code:
                 qr_path = generate_qr(self)
                 self.qr_code = f"qr/{self.verification_code}.png"
+                # self.qr_code = f"qr/{self.verification_code}.png"
                 super().save(update_fields=["qr_code"])
 
         elif self.status in ["Pending", "Rejected"]:
@@ -166,9 +167,11 @@ class ReviewedLessonPlan(models.Model):
 
 
 class Notification(models.Model):
+    notification_id = models.UUIDField(primary_key=True,default=uuid.uuid1, editable=False, blank=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     message = models.TextField()
     is_read = models.BooleanField(default=False)
+    is_sent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     link = models.CharField(max_length=255)
 
