@@ -6,9 +6,14 @@ import LessonPlanSkeleton from "../skeleton/LessonPlanSkeleton";
 import SuccessAlert from "../alerts/SuccessAlert";
 import ErrorAlert from "../alerts/ErrorAlert";
 
-const TabContent = ({ data, refreshLessonPlan, loading }) => {
+const TabContent = ({
+  data,
+  refreshLessonPlan,
+  loading,
+  selectedItem,
+  setSelectedItem,
+}) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedItem, setSelectedItem] = useState();
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -17,20 +22,6 @@ const TabContent = ({ data, refreshLessonPlan, loading }) => {
     Approved: "text-green-500",
     Rejected: "text-red-500",
   };
-
-  useEffect(() => {
-    const planIdFromURL = searchParams.get("planId");
-
-    if (planIdFromURL && data.length > 0) {
-      const foundItem = data.find(
-        (item) => item.plan_id.toString() === planIdFromURL,
-      );
-
-      if (foundItem) {
-        setSelectedItem(foundItem);
-      }
-    }
-  }, [searchParams, data]);
 
   const handleClose = () => {
     setSearchParams({}, { replace: true });

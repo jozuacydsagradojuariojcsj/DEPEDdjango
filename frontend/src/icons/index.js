@@ -8,3 +8,4 @@ export { FaReact } from "react-icons/fa";
 export { CiCircleCheck } from "react-icons/ci";
 export { CiWarning } from "react-icons/ci";
 export { MdDownload } from "react-icons/md";
+export { FaBell } from "react-icons/fa";

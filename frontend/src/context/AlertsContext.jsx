@@ -37,8 +37,9 @@ export const AlertsProvider = ({ children }) => {
     try {
       const response = await getPollingNotification();
       const { unseen, history } = response.data;
-      if (unseen.data && unseen.data.length > 0) {
-        response.data.forEach((notif) => {
+
+      if (unseen && unseen.length > 0) {
+        unseen.forEach((notif) => {
           addNotification(notif.message);
         });
       }
@@ -73,7 +74,7 @@ export const AlertsProvider = ({ children }) => {
   useEffect(() => {
     if (!user) return;
     syncAllNotifications();
-    const intervalId = setInterval(syncAllNotifications, 30000);
+    const intervalId = setInterval(syncAllNotifications, 20000);
     return () => clearInterval(intervalId);
   }, [addNotification, user]);
 
@@ -106,10 +107,7 @@ export const AlertsProvider = ({ children }) => {
       {notification.length > 0 && (
         <div className="toast toast-top toast-end z-1000 mt-16 flex flex-col gap-2">
           {notification.map((notif) => (
-            <Notifications
-              key={notif.id}
-              message={notif.message} // FIXED: Passing individual string message
-            />
+            <Notifications key={notif.id} message={notif.message} />
           ))}
         </div>
       )}

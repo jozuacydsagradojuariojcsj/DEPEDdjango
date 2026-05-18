@@ -17,6 +17,7 @@ import {
   MdPerson,
   MdOutlinePendingActions,
   FaCheck,
+  FaBell,
 } from "../../icons/index.js";
 import TabContent from "../../components/tabs/TabContent.jsx";
 import { useState, useMemo } from "react";
@@ -29,6 +30,7 @@ import "react-toastify/dist/ReactToastify.css";
 import SuccessAlert from "../../components/alerts/SuccessAlert.jsx";
 import { statCounts } from "../../api/principalApi.js";
 import { useAlerts } from "../../context/AlertsContext.jsx";
+import { Link, useSearchParams } from "react-router-dom";
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   backgroundColor: "#2c8aad98",
@@ -37,11 +39,15 @@ const AppBar = styled(MuiAppBar)(({ theme }) => ({
 const ViewLessonPlan = () => {
   const { user, loading, logout } = useAuth();
   const { modalNotification } = useAlerts();
+  const [unreadNotification, setUnreadNotification] = useState();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedItem, setSelectedItem] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeSchoolYearDialog, setActiveSchoolYearDialog] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(1);
   const [lessonPlans, setLessonPlans] = useState([]);
+  const [dropdownOpen, setDropDownOpen] = useState(false);
   const menuOpen = Boolean(anchorEl);
   const [counts, setCounts] = useState({
     teacher_count: 0,
@@ -142,7 +148,29 @@ const ViewLessonPlan = () => {
   }, [loading]);
 
   useEffect(() => {
-    console.log("modalnotif in admin lesson plan:", modalNotification);
+    const planIdFromURL = searchParams.get("planId");
+
+    if (planIdFromURL && lessonPlans.length > 0) {
+      const foundItem = lessonPlans.find(
+        (item) => item.plan_id.toString() === planIdFromURL,
+      );
+
+      console.log("Found IT:", foundItem);
+
+      if (foundItem) {
+        setSelectedItem(foundItem);
+        setActiveTab(foundItem.quarter);
+      }
+    }
+  }, [searchParams, lessonPlans]);
+
+  //will probably transfer to provider
+  useEffect(() => {
+    const unreadNotifications = modalNotification.filter(
+      (n) => n.is_read === false,
+    ).length;
+
+    setUnreadNotification(unreadNotifications);
   }, [modalNotification]);
 
   const filteredData = useMemo(() => {
@@ -167,27 +195,29 @@ const ViewLessonPlan = () => {
           >
             Set Active School Year
           </div>
-          <div className="dropdown dropdown-end">
+          <div className={"dropdown dropdown-end"}>
             <div
               tabIndex={0}
               role="button"
-              className="btn btn-outline text-xxs w-10 m-1"
+              className="btn btn-outline m-1 relative"
             >
-              Click ⬇️
+              <FaBell className="size-5" />
+              {unreadNotification > 0 && (
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white font-bold text-xxs w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                  {unreadNotification}
+                </div>
+              )}
             </div>
 
-            <div
-              tabIndex="-1"
-              className="dropdown-content menu bg-base-100 rounded-box z-1 w-50 p-2 shadow-sm"
-            >
+            <ul className="dropdown-content menu bg-base-100 rounded-box z-1 w-50 p-2 shadow-sm">
               {modalNotification.map((notif) => {
                 return (
-                  <div key={notif.notification_id}>
-                    <a href={notif.link}>{notif.message}</a>
-                  </div>
+                  <li key={notif.notification_id}>
+                    <Link to={notif.link}>{notif.message}</Link>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </div>
 
           <IconButton
@@ -263,6 +293,8 @@ const ViewLessonPlan = () => {
 
             <div className="bg-white rounded-md flex flex-1 min-h-0 overflow-y-auto">
               <TabContent
+                selectedItem={selectedItem}
+                setSelectedItem={setSelectedItem}
                 data={filteredData}
                 refreshLessonPlan={fetchLessonPlans}
                 loading={dataLoading}
