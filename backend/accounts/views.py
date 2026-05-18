@@ -51,16 +51,16 @@ class CreateTokenAPIView(TokenObtainPairView):
             key="access",
             value=access,
             httponly=True,
-            secure=False,  # True in production
-            samesite="Lax",
+            secure=True,  # True in production
+            samesite="none",
         )
 
         new_response.set_cookie(
             key="refresh",
             value=refresh,
             httponly=True,
-            secure=False, # True in production
-            samesite="Lax",
+            secure=True, # True in production
+            samesite="none",
         )
 
         return new_response
@@ -85,8 +85,8 @@ class CreateAccessTokenRefreshView(TokenRefreshView):
             key="access",
             value=access,
             httponly=True,
-            secure=False,
-            samesite="Lax"
+            secure=True,
+            samesite="none"
         )
 
         if refresh:
@@ -94,8 +94,8 @@ class CreateAccessTokenRefreshView(TokenRefreshView):
                 key="refresh",
                 value=refresh,
                 httponly=True,
-                secure=False,
-                samesite="Lax"
+                secure=True,
+                samesite="none"
             )
 
         return new_response
