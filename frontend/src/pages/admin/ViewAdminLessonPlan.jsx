@@ -28,6 +28,7 @@ import { useAuth } from "../../context/AuthContext.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import SuccessAlert from "../../components/alerts/SuccessAlert.jsx";
 import { statCounts } from "../../api/principalApi.js";
+import { useAlerts } from "../../context/AlertsContext.jsx";
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   backgroundColor: "#2c8aad98",
@@ -35,6 +36,7 @@ const AppBar = styled(MuiAppBar)(({ theme }) => ({
 
 const ViewLessonPlan = () => {
   const { user, loading, logout } = useAuth();
+  const { modalNotification } = useAlerts();
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeSchoolYearDialog, setActiveSchoolYearDialog] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
@@ -139,6 +141,10 @@ const ViewLessonPlan = () => {
     fetchStats();
   }, [loading]);
 
+  useEffect(() => {
+    console.log("modalnotif in admin lesson plan:", modalNotification);
+  }, [modalNotification]);
+
   const filteredData = useMemo(() => {
     return lessonPlans.filter((item) => item.quarter === activeTab);
   }, [lessonPlans, activeTab]);
@@ -156,10 +162,32 @@ const ViewLessonPlan = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}></Typography>
 
           <div
-            className="btn btn-outline text-xs w-30"
+            className="btn btn-outline text-xxs w-25 sm:text-xs sm:w-30"
             onClick={() => setActiveSchoolYearDialog(true)}
           >
             Set Active School Year
+          </div>
+          <div className="dropdown dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-outline text-xxs w-10 m-1"
+            >
+              Click ⬇️
+            </div>
+
+            <div
+              tabIndex="-1"
+              className="dropdown-content menu bg-base-100 rounded-box z-1 w-50 p-2 shadow-sm"
+            >
+              {modalNotification.map((notif) => {
+                return (
+                  <div key={notif.notification_id}>
+                    <a href={notif.link}>{notif.message}</a>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <IconButton
@@ -195,14 +223,13 @@ const ViewLessonPlan = () => {
           {/*Status Cards*/}
           <div className="grid grid-cols-2 lg:flex lg:flex-row w-full gap-6">
             {cardData.map((card) => (
-              <div key={card.index}>
-                <StatusCards
-                  title={card.title}
-                  icon={card.icon}
-                  data={counts[card.key]}
-                  colorClass={card.colorClass}
-                />
-              </div>
+              <StatusCards
+                key={card.index}
+                title={card.title}
+                icon={card.icon}
+                data={counts[card.key]}
+                colorClass={card.colorClass}
+              />
             ))}
           </div>
 

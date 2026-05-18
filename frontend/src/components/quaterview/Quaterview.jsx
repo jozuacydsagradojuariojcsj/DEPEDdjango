@@ -5,6 +5,7 @@ import Cards from "../cards/Cards";
 import Loading from "../Loading";
 import { getLessonPlan } from "../../api/lessonPlanApi";
 import { useAuth } from "../../context/AuthContext";
+import TeacherLayout from "../layouts/TeacherLayout";
 
 const QuarterView = () => {
   const navigate = useNavigate();
@@ -58,10 +59,7 @@ const QuarterView = () => {
   ];
 
   return (
-    <div
-      className="min-w-screen min-h-screen relative flex items-center justify-center bg-cover bg-center bg-fixed pt-14 sm:pt-16 flex-col sm:flex-row gap-6 p-2"
-      style={{ backgroundImage: `url(${Background})` }}
-    >
+    <TeacherLayout>
       <div className="grid grid-cols-2 gap-4">
         {cardData.map((card) => (
           <Cards
@@ -80,7 +78,7 @@ const QuarterView = () => {
           />
         ))}
       </div>
-    </div>
+    </TeacherLayout>
   );
 };
 

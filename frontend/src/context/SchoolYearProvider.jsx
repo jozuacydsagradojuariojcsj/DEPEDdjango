@@ -10,10 +10,12 @@ import {
   getSchoolYears,
   updateQuarterDeadline,
 } from "../api/principalApi";
+import { useAuth } from "./AuthContext";
 
 const SchoolYearContext = createContext();
 
 export const SchoolYearProvider = ({ children }) => {
+  const { user } = useAuth();
   const [schoolYear, setSchoolYear] = useState(null);
   const [yearStart, setYearStart] = useState(null);
   const [yearEnd, setYearEnd] = useState(null);
@@ -67,16 +69,18 @@ export const SchoolYearProvider = ({ children }) => {
         fetchQuarterDeadlines(data.year_id);
       }
     } catch (e) {
-      console.error(e);
+      console.error("School Year", e);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSchoolYear();
-    console.log("School Year Provider ran WTF");
-  }, []);
+    if (user) {
+      fetchSchoolYear();
+      console.log("School Year Provider ran WTF");
+    }
+  }, [user]);
 
   const value = useMemo(
     () => ({

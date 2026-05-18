@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-
 @theme {
   --breakpoint-xs: 480px;
   --breakpoint-sm: 640px;
@@ -13,4 +12,6 @@
   --text-xxs: 10px;
   --text-xs: 12px;
   --text-sm: 14px;
+
+  --color-dashboard: #2c8aad98;
 }

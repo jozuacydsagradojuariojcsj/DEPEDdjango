@@ -44,12 +44,14 @@ const TeacherLayout = ({ children }) => {
   return (
     <div className="flex flex-col w-screen h-screen">
       <CssBaseline />
-      <span className="bg-blue-400 ">
+      <AppBar position="fixed"></AppBar>
+      <span className="absolute w-full z-10 bg-dashboard drop-shadow-2xl shadow-lg">
         <Toolbar>
           <Box
             component="img"
             src={DEPED}
-            sx={{ height: 40, width: "auto", mr: 2 }}
+            sx={{ height: 40, width: "auto", mr: 2, cursor: "pointer" }}
+            onClick={() => navigate("/dashboard")}
           />
           <Typography variant="h6" sx={{ flexGrow: 1 }}></Typography>
 

@@ -45,22 +45,31 @@ const SubView = () => {
 
   return (
     <>
-      <TeacherLayout>
-        <div className="grid grid-cols-2 gap-4">
-          {deadlines.map((q) => {
-            const assets = cardData[q.quarter_number];
-            return (
-              <Cards
-                key={q.quarter_id}
-                title={assets.title}
-                subtitle={assets.subtitle}
-                image={assets.image}
-                onClick={() => handleOpenModal(q.quarter_id)}
-              />
-            );
-          })}
-        </div>
-      </TeacherLayout>
+      {schoolYear ? (
+        <TeacherLayout>
+          <div className="grid grid-cols-2 gap-4">
+            {deadlines.map((q) => {
+              const assets = cardData[q.quarter_number];
+              return (
+                <Cards
+                  key={q.quarter_id}
+                  title={assets.title}
+                  subtitle={assets.subtitle}
+                  image={assets.image}
+                  onClick={() => handleOpenModal(q.quarter_id)}
+                />
+              );
+            })}
+          </div>
+        </TeacherLayout>
+      ) : (
+        <TeacherLayout>
+          <p className="items-center justify-center">
+            Please Contact your Principal to Set an active school year
+          </p>
+        </TeacherLayout>
+      )}
+
       {/* Modal */}
       {isOpen && (
         <Submit

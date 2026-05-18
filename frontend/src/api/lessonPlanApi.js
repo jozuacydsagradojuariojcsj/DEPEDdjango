@@ -1,9 +1,10 @@
 import axios from "axios";
+import api from "./interceptorApi";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
-  withCredentials: true,
-});
+// const api = axios.create({
+//   baseURL: import.meta.env.VITE_BASE_URL,
+//   withCredentials: true,
+// });
 
 export const getLessonPlan = async (params) => {
   try {
