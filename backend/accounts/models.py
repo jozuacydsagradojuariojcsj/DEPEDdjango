@@ -176,4 +176,4 @@ class Notification(models.Model):
     link = models.CharField(max_length=255)
 
     def __str__(self):
-        return f" Notification for {self.user.first_name} {self.user.last_name}. Message: {self.message}"
+        return f" Notification for {self.user.first_name} {self.user.last_name}. Message: {self.message} NotifID: {self.notification_id}"

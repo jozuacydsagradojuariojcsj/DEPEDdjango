@@ -71,9 +71,7 @@ const QuarterView = () => {
               const filteredPlans = lessonPlans.filter(
                 (plan) => plan.quarter == card.index,
               );
-              navigate(`/submitlist?q=${card.index}`, {
-                state: { submissions: filteredPlans },
-              });
+              navigate(`/submitlist?q=${card.index}`);
             }}
           />
         ))}

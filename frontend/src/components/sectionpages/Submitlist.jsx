@@ -3,16 +3,19 @@ import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { FaFileAlt } from "react-icons/fa"; // File icon from react-icons
 import PDFDialogTeacher from "../dialog/PDFDialogTeacher";
 import { MdDownload } from "../../icons/index.js";
+import { getLessonPlan } from "../../api/lessonPlanApi.js";
 
 const QuarterSubmission = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
 
-  const quarter = searchParams.get("q") || "1";
-  const submissions = location.state?.submissions || [];
+  const [searchParams] = useSearchParams();
+  const quarterNum = searchParams.get("q");
 
   const [selectedItem, setSelectedItem] = useState(null);
+  const [lessonPlan, setLessonPlans] = useState([]);
+  const [filteredLessonPlans, setFilteredLessonPlans] = useState([]);
+  const [loading, setDataLoading] = useState(false);
 
   const reviewStatusStyles = {
     Pending: "text-yellow-500",
@@ -20,21 +23,61 @@ const QuarterSubmission = () => {
     Rejected: "text-red-500",
   };
 
+  //might have to transfer this to a provider
+  const fetchLessonPlans = async () => {
+    try {
+      setDataLoading(true);
+      console.log("loading true");
+      const data = await getLessonPlan();
+      console.log("data", data);
+      setLessonPlans(data);
+    } catch (e) {
+      console.log("Error boss:", e);
+    } finally {
+      setDataLoading(false);
+      console.log("loading false");
+    }
+  };
+
   useEffect(() => {
-    console.log(quarter);
-    console.log(submissions);
-  }, [submissions, quarter]);
+    const quarter = searchParams.get("q");
+
+    if (quarter && lessonPlan.length > 0) {
+      const filteredPlans = lessonPlan.filter(
+        (p) => p.quarter === Number(quarter),
+      );
+
+      setFilteredLessonPlans(filteredPlans);
+    }
+
+    fetchLessonPlans();
+  }, [loading]);
 
   const handleClose = () => {
     setSelectedItem(null);
   };
+
+  useEffect(() => {
+    const planIdFromURL = searchParams.get("planId");
+
+    if (planIdFromURL && lessonPlan.length > 0) {
+      const foundItem = lessonPlan.find(
+        (item) => item.plan_id.toString() === planIdFromURL,
+      );
+
+      if (foundItem) {
+        setSelectedItem(foundItem);
+        navigate(`/q?=${foundItem.quarter}`);
+      }
+    }
+  }, [searchParams, lessonPlan]);
   return (
     <>
-      {submissions.length === 0 ? (
+      {filteredLessonPlans.length === 0 ? (
         <div className="max-w-xl mx-auto mt-24 bg-white bg-opacity-90 rounded-lg p-8 shadow-lg backdrop-blur-sm text-center">
           {/* Title */}
           <h1 className="text-lg font-semibold mb-6 text-black">
-            Quarter {quarter} Submissions
+            Quarter {quarterNum} Submissions
           </h1>
 
           {/* Icon */}
@@ -42,14 +85,14 @@ const QuarterSubmission = () => {
             <FaFileAlt size={40} />
           </div>
           <p className="text-gray-600 text-sm">
-            No submissions for Quarter {quarter} yet.
+            No submissions for Quarter {quarterNum} yet.
           </p>
         </div>
       ) : (
         <div className="w-full min-h-4/5 flex flex-col items-center gap-6 p-4 lg:w-3/4 bg-white rounded-lg shadow-lg backdrop-blur-sm">
           {/* Title */}
           <h1 className="text-lg font-semibold mb-6 text-black">
-            Quarter {quarter} Submissions
+            Quarter {quarterNum} Submissions
           </h1>
           <div className="w-full grid grid-cols-4 md:grid-cols-5 text-xs text-center text-black">
             <div className="hidden md:block">Date Submitted</div>
@@ -59,7 +102,7 @@ const QuarterSubmission = () => {
             <div>Certificate</div>
           </div>
 
-          {submissions.map((sub) => {
+          {filteredLessonPlans.map((sub) => {
             const hasQR = sub.qr_code !== null;
             const isLate = sub.is_late;
             const lateLabel = isLate ? "Late" : "On Time";
@@ -100,7 +143,7 @@ const QuarterSubmission = () => {
                 </div>
                 <a
                   href={sub.qr_code}
-                  download={`Certification_Quarter_${quarter}_${sub.teacher.last_name}.png`}
+                  download={`Certification_Quarter_${quarterNum}_${sub.teacher.last_name}.png`}
                   target="_blank"
                   rel="noopener"
                   className={`text-xs md:text-sm ${hasQR ? "btn btn-outline h-6 w-auto md:h-8" : ""}`}

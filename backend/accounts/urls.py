@@ -20,7 +20,8 @@ urlpatterns = [
     path("auth/jwt/create/",views.CreateTokenAPIView.as_view(), name="login-user"),
     path("auth/jwt/refresh/",views.CreateAccessTokenRefreshView.as_view(),name="access-via-refresh-token"),
     path("notifications/",views.NotificationView.as_view(), name="notifications"),
-    path("polling_notifications/",views.NotificationPollingView.as_view(), name="polling")
+    path("polling_notifications/",views.NotificationPollingView.as_view(), name="polling"),
+    path("mark_as_read/<uuid:notification_id>/",views.NotificationPollingView.as_view(),name="mark_as_read")
     # path("register/", views.UserRegistrationAPIView.as_view(), name="register-user"),
     # path("login/", views.UserLoginAPIView.as_view(), name="login-user"),
 ]

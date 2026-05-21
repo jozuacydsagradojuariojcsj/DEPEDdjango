@@ -12,6 +12,7 @@ import { useAuth } from "./AuthContext";
 import {
   getPollingNotification,
   getUnreadNotifications,
+  markAsReadNotifications,
 } from "../api/notificationsApi";
 
 const AlertsContext = createContext();
@@ -21,6 +22,7 @@ export const AlertsProvider = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [notification, setNotification] = useState([]);
   const [modalNotification, setModalNotification] = useState([]);
+  const [unreadNotification, setUnreadNotification] = useState();
   const { user } = useAuth();
 
   const addNotification = useCallback((message) => {
@@ -53,6 +55,19 @@ export const AlertsProvider = ({ children }) => {
     }
   };
 
+  const markNotificationAsRead = async (notification_id) => {
+    console.log("Notif ID", notification_id);
+    try {
+      const response = await markAsReadNotifications(notification_id);
+      if (response.status === 200) {
+        syncAllNotifications();
+        console.log("success");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => {
@@ -78,6 +93,14 @@ export const AlertsProvider = ({ children }) => {
     return () => clearInterval(intervalId);
   }, [addNotification, user]);
 
+  useEffect(() => {
+    const unreadNotifications = modalNotification.filter(
+      (n) => n.is_read === false,
+    ).length;
+
+    setUnreadNotification(unreadNotifications);
+  }, [modalNotification]);
+
   const clearModalArchive = () => setModalNotifications([]);
 
   return (
@@ -88,7 +111,9 @@ export const AlertsProvider = ({ children }) => {
         setNotification,
         addNotification,
         clearModalArchive,
+        markNotificationAsRead,
         modalNotification,
+        unreadNotification,
       }}
     >
       {children}

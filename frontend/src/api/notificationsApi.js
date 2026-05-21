@@ -22,3 +22,12 @@ export const getUnreadNotifications = async () => {
     throw e;
   }
 };
+
+export const markAsReadNotifications = async (notification_id) => {
+  try {
+    const response = await api.patch(`mark_as_read/${notification_id}/`);
+    return response;
+  } catch (e) {
+    throw e;
+  }
+};

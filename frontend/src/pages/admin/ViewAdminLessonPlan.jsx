@@ -38,8 +38,9 @@ const AppBar = styled(MuiAppBar)(({ theme }) => ({
 
 const ViewLessonPlan = () => {
   const { user, loading, logout } = useAuth();
-  const { modalNotification } = useAlerts();
-  const [unreadNotification, setUnreadNotification] = useState();
+  const { modalNotification, markNotificationAsRead, unreadNotification } =
+    useAlerts();
+  // const [unreadNotification, setUnreadNotification] = useState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedItem, setSelectedItem] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -130,14 +131,21 @@ const ViewLessonPlan = () => {
   const fetchLessonPlans = async () => {
     try {
       setDataLoading(true);
-      console.log("loading true");
       const data = await getLessonPlan();
       setLessonPlans(data);
     } catch (e) {
-      console.log("Error boss:", e);
+      console.error("Fetch Lesson Plan Error:", e);
     } finally {
       setDataLoading(false);
-      console.log("loading false");
+    }
+  };
+
+  const readNotifications = async (notification_id) => {
+    try {
+      console.log(notification_id);
+      markNotificationAsRead(notification_id);
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -165,13 +173,13 @@ const ViewLessonPlan = () => {
   }, [searchParams, lessonPlans]);
 
   //will probably transfer to provider
-  useEffect(() => {
-    const unreadNotifications = modalNotification.filter(
-      (n) => n.is_read === false,
-    ).length;
+  // useEffect(() => {
+  //   const unreadNotifications = modalNotification.filter(
+  //     (n) => n.is_read === false,
+  //   ).length;
 
-    setUnreadNotification(unreadNotifications);
-  }, [modalNotification]);
+  //   setUnreadNotification(unreadNotifications);
+  // }, [modalNotification]);
 
   const filteredData = useMemo(() => {
     return lessonPlans.filter((item) => item.quarter === activeTab);
@@ -209,11 +217,39 @@ const ViewLessonPlan = () => {
               )}
             </div>
 
-            <ul className="dropdown-content menu bg-base-100 rounded-box z-1 w-50 p-2 shadow-sm">
+            <ul className="dropdown-content menu rounded-box z-1 w-50 sm:w-100 p-2 shadow-sm gap-y-3 bg-gray-300">
               {modalNotification.map((notif) => {
+                const formattedDate = new Date(notif.created_at).toLocaleString(
+                  "en-US",
+                  {
+                    year: "numeric",
+                    month: "long",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  },
+                );
                 return (
-                  <li key={notif.notification_id}>
-                    <Link to={notif.link}>{notif.message}</Link>
+                  <li key={notif.notification_id} className={`rounded-lg `}>
+                    <Link
+                      onClick={() => readNotifications(notif.notification_id)}
+                      to={notif.link}
+                      className="flex flex-col items-start relative"
+                    >
+                      <div
+                        className={`${notif.is_read ? "hidden" : "absolute"} top-1 right-1 rounded-full bg-red-500 size-3`}
+                      />
+                      <div
+                        className={`text-xxs sm:text-base ${notif.is_read ? "font-normal" : "font-bold"}`}
+                      >
+                        {notif.message}
+                      </div>
+                      <div
+                        className={`text-xxs sm:text-base ${notif.is_read ? "font-normal" : "font-bold"}`}
+                      >
+                        {formattedDate}
+                      </div>
+                    </Link>
                   </li>
                 );
               })}
