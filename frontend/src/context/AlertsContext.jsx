@@ -55,13 +55,18 @@ export const AlertsProvider = ({ children }) => {
     }
   };
 
-  const markNotificationAsRead = async (notification_id) => {
-    console.log("Notif ID", notification_id);
+  const markNotificationAsRead = async (notification_id, notification) => {
+    if (notification.is_read) {
+      return syncAllNotifications();
+    }
+
     try {
-      const response = await markAsReadNotifications(notification_id);
+      console.log();
+      const response = await markAsReadNotifications(
+        notification.notification_id,
+      );
       if (response.status === 200) {
         syncAllNotifications();
-        console.log("success");
       }
     } catch (e) {
       console.error(e);
@@ -89,7 +94,7 @@ export const AlertsProvider = ({ children }) => {
   useEffect(() => {
     if (!user) return;
     syncAllNotifications();
-    const intervalId = setInterval(syncAllNotifications, 20000);
+    const intervalId = setInterval(syncAllNotifications, 60000);
     return () => clearInterval(intervalId);
   }, [addNotification, user]);
 

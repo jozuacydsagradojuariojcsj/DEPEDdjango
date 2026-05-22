@@ -13,7 +13,7 @@ export default function AuthForm() {
   const [loginLoading, setIsLoginLoading] = useState(false);
   const [registerLoading, setRegisterLoading] = useState(false);
   const navigate = useNavigate();
-  const { login, logout, user } = useAuth();
+  const { login, logout, user, register } = useAuth();
   //Login Form Data
   const [loginFormData, setLoginFormData] = useState({
     email: "",
@@ -72,7 +72,6 @@ export default function AuthForm() {
       ...loginFormData,
       [e.target.name]: e.target.value,
     });
-    console.log(loginFormData);
   };
 
   //Handle Register Change Function
@@ -81,7 +80,6 @@ export default function AuthForm() {
       ...registerFormData,
       [e.target.name]: e.target.value,
     });
-    console.log(registerFormData);
   };
 
   //Handle Login Button Submit
@@ -111,7 +109,6 @@ export default function AuthForm() {
       }
     } catch (e) {
       const message = e?.response?.data;
-      console.log("error", e);
       if (message.detail) {
         toast.error("Email and Password do not match!");
       } else {
@@ -137,14 +134,28 @@ export default function AuthForm() {
 
     setRegisterLoading(true);
     try {
-      await registerUser(registerFormData);
+      await register(registerFormData);
       toast.success("Register Successful", {
         onClose: () => setIsLogin(true),
+      });
+      setRegisterFormData({
+        first_name: "",
+        middle_initial: "",
+        last_name: "",
+        subject: "",
+        grade_level: "",
+        email: "",
+        role: "Teacher", // Safe to keep default fallback string instead of empty
+        password: "",
+        re_password: "",
       });
     } catch (e) {
       const message = e?.response?.data;
       if (message.email) {
         toast.error("Email already in use.");
+      } else if (message.password && Array.isArray(message.password)) {
+        const allPasswordErrors = message.password.join("\n");
+        toast.error(allPasswordErrors);
       } else {
         toast.error("Server Error");
       }
@@ -199,11 +210,21 @@ export default function AuthForm() {
                 disabled={loginLoading}
                 onClick={handleLoginSubmit}
               >
-                Login
+                {registerLoading ? (
+                  <div className="loading loading-spinner text-white"></div>
+                ) : (
+                  "Login"
+                )}
               </button>
-              <p>
-                Not a Member? <a href="">Sign now</a>
-              </p>
+              <div className="text-center">
+                Not a Member?{" "}
+                <span
+                  onClick={() => setIsLogin(false)}
+                  className="link link-hover text-blue-500"
+                >
+                  Sign now
+                </span>
+              </div>
             </div>
           </>
         ) : (
@@ -279,7 +300,11 @@ export default function AuthForm() {
                 disabled={registerLoading}
                 onClick={handleRegisterSubmit}
               >
-                Sign Up
+                {registerLoading ? (
+                  <div className="loading loading-spinner text-white"></div>
+                ) : (
+                  "Sign Up"
+                )}
               </button>
             </div>
           </>

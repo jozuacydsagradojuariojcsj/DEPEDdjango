@@ -45,6 +45,14 @@ const TeacherLayout = ({ children }) => {
     setAnchorEl(null);
   };
 
+  const readNotifications = async (notification_id, notification) => {
+    try {
+      markNotificationAsRead(notification_id, notification);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="flex flex-col w-screen h-screen">
       <CssBaseline />
@@ -88,7 +96,9 @@ const TeacherLayout = ({ children }) => {
                 return (
                   <li key={notif.notification_id} className={`rounded-lg `}>
                     <Link
-                      onClick={() => readNotifications(notif.notification_id)}
+                      onClick={() =>
+                        readNotifications(notif.notification_id, notif)
+                      }
                       to={`${frontendURL}/submitlist/?planId=${notif.link}`}
                       className="flex flex-col items-start relative"
                     >

@@ -13,24 +13,6 @@ const QuarterView = () => {
   const [lessonPlans, setLessonPlans] = useState([]);
   const [dataLoading, setDataLoading] = useState(false);
 
-  const fetchLessonPlans = async () => {
-    try {
-      setDataLoading(true);
-      console.log("loading true");
-      const data = await getLessonPlan();
-      setLessonPlans(data);
-    } catch (e) {
-      console.log("Error boss:", e);
-    } finally {
-      setDataLoading(false);
-      console.log("loading false");
-    }
-  };
-
-  useEffect(() => {
-    fetchLessonPlans();
-  }, [loading]);
-
   const cardData = [
     {
       index: 1,

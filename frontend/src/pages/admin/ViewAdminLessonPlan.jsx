@@ -142,7 +142,6 @@ const ViewLessonPlan = () => {
 
   const readNotifications = async (notification_id) => {
     try {
-      console.log(notification_id);
       markNotificationAsRead(notification_id);
     } catch (e) {
       console.error(e);
@@ -188,7 +187,7 @@ const ViewLessonPlan = () => {
   return (
     <div className="flex flex-col w-screen h-screen">
       <CssBaseline />
-      <span className="bg-blue-400">
+      <span className=" opacity-90 w-full z-10 bg-dashboard drop-shadow-2xl shadow-lg">
         <Toolbar>
           <Box
             component="img"

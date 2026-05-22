@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { FaFileAlt } from "react-icons/fa"; // File icon from react-icons
 import PDFDialogTeacher from "../dialog/PDFDialogTeacher";
@@ -8,13 +8,10 @@ import { getLessonPlan } from "../../api/lessonPlanApi.js";
 const QuarterSubmission = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const [searchParams] = useSearchParams();
   const quarterNum = searchParams.get("q");
-
   const [selectedItem, setSelectedItem] = useState(null);
   const [lessonPlan, setLessonPlans] = useState([]);
-  const [filteredLessonPlans, setFilteredLessonPlans] = useState([]);
   const [loading, setDataLoading] = useState(false);
 
   const reviewStatusStyles = {
@@ -27,31 +24,26 @@ const QuarterSubmission = () => {
   const fetchLessonPlans = async () => {
     try {
       setDataLoading(true);
-      console.log("loading true");
       const data = await getLessonPlan();
-      console.log("data", data);
       setLessonPlans(data);
     } catch (e) {
-      console.log("Error boss:", e);
+      console.error("Error boss:", e);
     } finally {
       setDataLoading(false);
-      console.log("loading false");
     }
   };
 
   useEffect(() => {
+    fetchLessonPlans();
+  }, []);
+
+  const filteredLessonPlans = useMemo(() => {
     const quarter = searchParams.get("q");
 
-    if (quarter && lessonPlan.length > 0) {
-      const filteredPlans = lessonPlan.filter(
-        (p) => p.quarter === Number(quarter),
-      );
+    if (!quarter) return [];
 
-      setFilteredLessonPlans(filteredPlans);
-    }
-
-    fetchLessonPlans();
-  }, [loading]);
+    return lessonPlan.filter((p) => p.quarter === Number(quarter));
+  }, [lessonPlan, searchParams]);
 
   const handleClose = () => {
     setSelectedItem(null);
@@ -67,13 +59,17 @@ const QuarterSubmission = () => {
 
       if (foundItem) {
         setSelectedItem(foundItem);
-        navigate(`/q?=${foundItem.quarter}`);
+        navigate(`/submitlist?q=${foundItem.quarter}`, {
+          replace: true,
+        });
       }
     }
   }, [searchParams, lessonPlan]);
   return (
     <>
-      {filteredLessonPlans.length === 0 ? (
+      {loading ? (
+        <div className=" loading loading-spinner loading-xs md:loading-xl"></div>
+      ) : filteredLessonPlans.length === 0 ? (
         <div className="max-w-xl mx-auto mt-24 bg-white bg-opacity-90 rounded-lg p-8 shadow-lg backdrop-blur-sm text-center">
           {/* Title */}
           <h1 className="text-lg font-semibold mb-6 text-black">
