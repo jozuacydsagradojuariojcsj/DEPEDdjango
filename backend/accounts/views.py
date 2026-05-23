@@ -272,7 +272,7 @@ class LessonPlanView(APIView):
             Notification.objects.create(
                 user=principal_user,
                 message=f"{user.first_name}  {user.last_name} submitted a Lesson Plan",
-                link=f'http://localhost:5173/view/?planId={lesson_plan.plan_id}'
+                link=f'{lesson_plan.plan_id}'
             )
             
             return Response (serializer.data,status=status.HTTP_201_CREATED)
@@ -326,11 +326,11 @@ class LessonPlanView(APIView):
                 is_late_bool = is_late.lower() == "true"
                 if is_late_bool:
                     queryset = queryset.filter(
-                        created_at__gt=F("quarter__deadline")
+                        created_at__gt=("quarter__deadline")
                     )
                 else:
                     queryset = queryset.filter(
-                        created_at__lte=F("quarter__deadline")
+                        created_at__lte=("quarter__deadline")
                     )
 
             if school_year:

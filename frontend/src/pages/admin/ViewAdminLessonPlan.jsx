@@ -40,7 +40,7 @@ const ViewLessonPlan = () => {
   const { user, loading, logout } = useAuth();
   const { modalNotification, markNotificationAsRead, unreadNotification } =
     useAlerts();
-  // const [unreadNotification, setUnreadNotification] = useState();
+  const [queryParams, setQueryParams] = useState("All Teachers");
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedItem, setSelectedItem] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -206,7 +206,7 @@ const ViewLessonPlan = () => {
             <div
               tabIndex={0}
               role="button"
-              className="btn btn-outline m-1 relative"
+              className="btn btn-ghost m-1 relative"
             >
               <FaBell className="size-5" />
               {unreadNotification > 0 && (
@@ -305,12 +305,18 @@ const ViewLessonPlan = () => {
               <div className="text-xxs sm:text-sm md:text-base">
                 <h1 className="font-bold">All Lesson Plan Submissions</h1>
                 <div>
-                  Review and manage teacher submissions organized by week
+                  Review and manage teacher submissions organized by Quarters
                 </div>
               </div>
-              <div className="text-xs sm:text-sm md:text-base">
-                All Teachers
-              </div>
+              {/* <select
+                value={queryParams}
+                onChange={(e) => setQueryParams(e.target.value)}
+                className="text-xss sm:text-sm md:text-base bg-gray-300 rounded-md p-1"
+              >
+                <option>All Lesson Plans</option>
+                <option>Status</option>
+                <option>Late</option>
+              </select> */}
             </div>
             <div className="flex flex-row tabs tabs-box tabs-xs  bg-gray-300 rounded-full justify-between p-1 gap-2 mb-4 w-full">
               {tabsMock.map((tab) => (
