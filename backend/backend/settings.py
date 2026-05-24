@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'anymail',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -159,7 +160,7 @@ DJOSER = {
     "SEND_CONFIRMATION_EMAIL" : False,
     "SET_USERNAME_RETYPE" : True,
     "SET_PASSWORD_RETYPE" : True,
-    "PASSWORD_RESET_CONFIRM_URL" : 'api/password/reset/confirm/{uid}/{token}',
+    "PASSWORD_RESET_CONFIRM_URL" : 'password/reset/confirm/{uid}/{token}',
     "USERNAME_RESET_CONFIRM_URL" : 'email/reset/confirm/{uid}/{token}',
     "ACTIVATION_URL" : 'activate/{uid}/{token}',
     "SEND_ACTIVATION_EMAIL" : False,
@@ -171,7 +172,15 @@ DJOSER = {
     },
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.dummy.EmailBackend"
+DOMAIN = 'localhost:5173'
+PROTOCOL = 'http'
+SITE_NAME = 'DepEd Bukidnon'
+
+EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+ANYMAIL = {
+    "RESEND_API_KEY": "re_L17mfZJi_AH1kDwQCbm2wpKogADxL8hHx",
+}
+DEFAULT_FROM_EMAIL = "onboarding@resend.dev"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
