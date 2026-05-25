@@ -37,6 +37,7 @@ const AppBar = styled(MuiAppBar)(({ theme }) => ({
 }));
 
 const ViewLessonPlan = () => {
+  const frontendURL = import.meta.env.VITE_FRONTEND_URL;
   const { user, loading, logout } = useAuth();
   const { modalNotification, markNotificationAsRead, unreadNotification } =
     useAlerts();
@@ -140,9 +141,9 @@ const ViewLessonPlan = () => {
     }
   };
 
-  const readNotifications = async (notification_id) => {
+  const readNotifications = async (notification_id, notification) => {
     try {
-      markNotificationAsRead(notification_id);
+      await markNotificationAsRead(notification_id, notification);
     } catch (e) {
       console.error(e);
     }
@@ -231,8 +232,10 @@ const ViewLessonPlan = () => {
                 return (
                   <li key={notif.notification_id} className={`rounded-lg `}>
                     <Link
-                      onClick={() => readNotifications(notif.notification_id)}
-                      to={notif.link}
+                      onClick={() =>
+                        readNotifications(notif.notification_id, notif)
+                      }
+                      to={`${frontendURL}/view/?planId=${notif.link}`}
                       className="flex flex-col items-start relative"
                     >
                       <div
