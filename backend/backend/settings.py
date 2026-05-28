@@ -12,9 +12,14 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,17 +32,19 @@ SECRET_KEY = 'django-insecure-a2yjg2!e3t^#c7k+z70w61p!+v+562q4^)a6w(l1#*unn%2t^-
 DEBUG = True
 
 
-ALLOWED_HOSTS = ["yahiko247.pythonanywhere.com",]  #I add the vercel url here
+ALLOWED_HOSTS = ["*",'http://localhost:5173', 'http://192.168.1.30:5173', "https://depe-ddjango.vercel.app"]  #I add the vercel url here
 
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = ['http://localhost:5173', 'http://192.168.1.30:5173', "https://depe-ddjango.vercel.app"]  #i add the vercel url here
 
-MEDIA_URL = "/media/"
+# MEDIA_URL = "/media/"
 
-MEDIA_ROOT = BASE_DIR / "media"
+# MEDIA_ROOT = BASE_DIR / "media"
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
+
+
 
 
 # Application definition
@@ -49,6 +56,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'anymail',
+    'storages',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -90,6 +99,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+
 
 
 # Database
@@ -151,6 +161,69 @@ REST_FRAMEWORK={
     ),
 }
 
+### DEPLOYMENT VARIABLES ###
+PROTOCOL = 'http'
+
+BACKEND_URL = os.environ.get("BACKEND_URL")
+
+DOMAIN = os.environ.get("FRONTEND_URL")
+
+SITE_NAME = os.environ.get("SITE_NAME")
+
+EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+ANYMAIL = {
+    "RESEND_API_KEY": os.environ.get("RESEND_API_KEY"),
+}
+DEFAULT_FROM_EMAIL = "onboarding@resend.dev"
+
+# AWS_ACCESS_KEY_ID = os.getenv("R2_ACCESS_KEY_ID")
+
+# AWS_SECRET_ACCESS_KEY = os.getenv(
+#     "R2_SECRET_ACCESS_KEY"
+# )
+
+# AWS_STORAGE_BUCKET_NAME = os.getenv(
+#     "R2_BUCKET_NAME"
+# )
+
+# AWS_S3_ENDPOINT_URL = (
+#     f"https://{os.getenv('R2_ACCOUNT_ID')}.r2.cloudflarestorage.com"
+# )
+
+# AWS_S3_REGION_NAME = "auto"
+
+# AWS_QUERYSTRING_AUTH = False
+
+# AWS_DEFAULT_ACL = None
+
+CLOUDFLARE_R2_CONFIG_OPTIONS = {
+    "bucket_name": os.getenv("R2_BUCKET_NAME"),
+    "default_acl": "public-read",  # or "private"
+    "signature_version": "s3v4",
+    "endpoint_url": os.getenv("R2_ENDPOINT_URL"),
+    "access_key": os.getenv("R2_ACCESS_KEY_ID"),
+    "secret_key": os.getenv("R2_SECRET_ACCESS_KEY"),
+    "default_acl": None,          
+    "file_overwrite": False,
+    "querystring_auth": False,
+    "custom_domain": os.getenv("R2_PUBLIC_URL")
+}
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": CLOUDFLARE_R2_CONFIG_OPTIONS,
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+# DEFAULT_FILE_STORAGE = (
+#     "storages.backends.s3boto3.S3Boto3Storage"
+# )
+
+
 DJOSER = {
     "LOGIN_FIELD" : "email",
     "USER_CREATE_PASSWORD_RETYPE" : False,
@@ -159,7 +232,7 @@ DJOSER = {
     "SEND_CONFIRMATION_EMAIL" : False,
     "SET_USERNAME_RETYPE" : True,
     "SET_PASSWORD_RETYPE" : True,
-    "PASSWORD_RESET_CONFIRM_URL" : 'api/password/reset/confirm/{uid}/{token}',
+    "PASSWORD_RESET_CONFIRM_URL" : 'password/reset/confirm/{uid}/{token}',
     "USERNAME_RESET_CONFIRM_URL" : 'email/reset/confirm/{uid}/{token}',
     "ACTIVATION_URL" : 'activate/{uid}/{token}',
     "SEND_ACTIVATION_EMAIL" : False,
@@ -170,8 +243,6 @@ DJOSER = {
         'user' : 'accounts.serializers.UserCreateSerializer',
     },
 }
-
-EMAIL_BACKEND = "django.core.mail.backends.dummy.EmailBackend"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),

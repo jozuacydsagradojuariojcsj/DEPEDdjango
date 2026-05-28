@@ -53,6 +53,15 @@ const PDFDialogTeacher = ({ data, onClose }) => {
           <div className="flex flex-row flex-1 items-center">
             <iframe src={`${data.lesson_plan}`} className="w-full h-full" />
           </div>
+
+          <textarea
+            disabled={true}
+            className="border border-gray-300 rounded-lg bg-gray-100 p-2 resize-none h-20 w-full"
+          >
+            {data.feedBack}
+          </textarea>
+
+          <div></div>
         </div>
         <form method="dialog" className="modal-backdrop">
           <button onClick={onClose}>close</button>

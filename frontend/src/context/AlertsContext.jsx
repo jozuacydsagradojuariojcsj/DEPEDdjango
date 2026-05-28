@@ -12,6 +12,7 @@ import { useAuth } from "./AuthContext";
 import {
   getPollingNotification,
   getUnreadNotifications,
+  markAsReadNotifications,
 } from "../api/notificationsApi";
 
 const AlertsContext = createContext();
@@ -21,6 +22,7 @@ export const AlertsProvider = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [notification, setNotification] = useState([]);
   const [modalNotification, setModalNotification] = useState([]);
+  const [unreadNotification, setUnreadNotification] = useState();
   const { user } = useAuth();
 
   const addNotification = useCallback((message) => {
@@ -37,8 +39,9 @@ export const AlertsProvider = ({ children }) => {
     try {
       const response = await getPollingNotification();
       const { unseen, history } = response.data;
-      if (unseen.data && unseen.data.length > 0) {
-        response.data.forEach((notif) => {
+
+      if (unseen && unseen.length > 0) {
+        unseen.forEach((notif) => {
           addNotification(notif.message);
         });
       }
@@ -49,6 +52,24 @@ export const AlertsProvider = ({ children }) => {
       }
     } catch (e) {
       console.error("Notification Polling Error:", e);
+    }
+  };
+
+  const markNotificationAsRead = async (notification_id, notification) => {
+    if (notification.is_read) {
+      return syncAllNotifications();
+    }
+
+    try {
+      console.log();
+      const response = await markAsReadNotifications(
+        notification.notification_id,
+      );
+      if (response.status === 200) {
+        syncAllNotifications();
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -73,9 +94,17 @@ export const AlertsProvider = ({ children }) => {
   useEffect(() => {
     if (!user) return;
     syncAllNotifications();
-    const intervalId = setInterval(syncAllNotifications, 30000);
+    const intervalId = setInterval(syncAllNotifications, 60000);
     return () => clearInterval(intervalId);
   }, [addNotification, user]);
+
+  useEffect(() => {
+    const unreadNotifications = modalNotification.filter(
+      (n) => n.is_read === false,
+    ).length;
+
+    setUnreadNotification(unreadNotifications);
+  }, [modalNotification]);
 
   const clearModalArchive = () => setModalNotifications([]);
 
@@ -87,7 +116,9 @@ export const AlertsProvider = ({ children }) => {
         setNotification,
         addNotification,
         clearModalArchive,
+        markNotificationAsRead,
         modalNotification,
+        unreadNotification,
       }}
     >
       {children}
@@ -106,10 +137,7 @@ export const AlertsProvider = ({ children }) => {
       {notification.length > 0 && (
         <div className="toast toast-top toast-end z-1000 mt-16 flex flex-col gap-2">
           {notification.map((notif) => (
-            <Notifications
-              key={notif.id}
-              message={notif.message} // FIXED: Passing individual string message
-            />
+            <Notifications key={notif.id} message={notif.message} />
           ))}
         </div>
       )}

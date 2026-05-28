@@ -1,6 +1,11 @@
 import React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { getLoginUserdata, loginUser, logoutUser } from "../api/authApi";
+import {
+  getLoginUserdata,
+  loginUser,
+  logoutUser,
+  registerUser,
+} from "../api/authApi";
 
 const AuthContext = createContext();
 
@@ -45,6 +50,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (registerCredentials) => {
+    console.log(registerCredentials);
+    try {
+      const register = await registerUser(registerCredentials);
+    } catch (e) {
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     getUser();
     console.log("UseEffect Auth Context ran WTF");
@@ -60,6 +76,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!user,
         role: user?.role,
         setUser,
+        register,
       }}
     >
       {children}

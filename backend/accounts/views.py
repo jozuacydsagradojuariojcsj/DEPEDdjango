@@ -247,14 +247,6 @@ class QuarterView(APIView):
         else:
             return Response({"Unauthorized":"Principal is the only one that can access this!"}, status=status.HTTP_400_BAD_REQUEST)
 
-        
-        
-
-
-
-            
-
-
 #Lesson Plan Views
 class LessonPlanView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -280,7 +272,7 @@ class LessonPlanView(APIView):
             Notification.objects.create(
                 user=principal_user,
                 message=f"{user.first_name}  {user.last_name} submitted a Lesson Plan",
-                link=f'http://localhost:5173/view/?planId={lesson_plan.plan_id}'
+                link=f'{lesson_plan.plan_id}'
             )
             
             return Response (serializer.data,status=status.HTTP_201_CREATED)
@@ -334,11 +326,11 @@ class LessonPlanView(APIView):
                 is_late_bool = is_late.lower() == "true"
                 if is_late_bool:
                     queryset = queryset.filter(
-                        created_at__gt=F("quarter__deadline")
+                        created_at__gt=("quarter__deadline")
                     )
                 else:
                     queryset = queryset.filter(
-                        created_at__lte=F("quarter__deadline")
+                        created_at__lte=("quarter__deadline")
                     )
 
             if school_year:
@@ -373,8 +365,8 @@ class LessonPlanView(APIView):
 
             Notification.objects.create(
                 user=teacher,
-                message=f"{principal.first_name}  {principal.last_name} {data['status']} your Lesson Plan",
-                link='testing'
+                message=f"Your Lesson Plan was reviewed by {principal.first_name}  {principal.last_name} and was set to: {data["status"]}",
+                link=f'{lesson_plan.plan_id}'
             )
 
             ReviewedLessonPlan.objects.create(
@@ -446,6 +438,30 @@ class NotificationPollingView(APIView):
         except Exception as e:
             print(e)
             return Response({'error':'Internal Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def patch(self, request, notification_id):
+        user_id = request.user.UID
+        data = request.data
+
+        try:
+            if not notification_id:
+                return Response({'error':'No Notification ID Invalid'},status=status.HTTP_400_BAD_REQUEST)
+            
+            if user_id:
+                notification = get_object_or_404(Notification, notification_id=notification_id, user = user_id)
+
+                if not notification.is_read:
+                    notification.is_read = True
+                    notification.save()
+                    return Response({'success':'Notification updated'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'success':'Notification is read'},status=status.HTTP_200_OK)
+
+            else:
+                return Response({'error':'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print(e)
+            return Response({'error':'Internal Server Error'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
 

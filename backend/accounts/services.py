@@ -4,7 +4,6 @@ import os
 from django.conf import settings
 import qrcode 
 
-
 def generate_certificate(lesson):
         file_path = os.path.join(settings.MEDIA_ROOT, f"certificates/{lesson.plan_id}.pdf")
 
@@ -38,7 +37,7 @@ def generate_certificate(lesson):
 
 def generate_qr(lesson):
         #url from urls.py which connect to views
-        url = f"http://localhost:8000/api/verify/certificate/{lesson.verification_code}"
+        url = f"{settings.BACKEND_URL}api/verify/certificate/{lesson.verification_code}"
 
         img = qrcode.make(url)
 

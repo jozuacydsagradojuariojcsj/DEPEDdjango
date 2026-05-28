@@ -17,6 +17,7 @@ import {
   MdPerson,
   MdOutlinePendingActions,
   FaCheck,
+  FaBell,
 } from "../../icons/index.js";
 import TabContent from "../../components/tabs/TabContent.jsx";
 import { useState, useMemo } from "react";
@@ -29,19 +30,26 @@ import "react-toastify/dist/ReactToastify.css";
 import SuccessAlert from "../../components/alerts/SuccessAlert.jsx";
 import { statCounts } from "../../api/principalApi.js";
 import { useAlerts } from "../../context/AlertsContext.jsx";
+import { Link, useSearchParams } from "react-router-dom";
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   backgroundColor: "#2c8aad98",
 }));
 
 const ViewLessonPlan = () => {
+  const frontendURL = import.meta.env.VITE_FRONTEND_URL;
   const { user, loading, logout } = useAuth();
-  const { modalNotification } = useAlerts();
+  const { modalNotification, markNotificationAsRead, unreadNotification } =
+    useAlerts();
+  const [queryParams, setQueryParams] = useState("All Teachers");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedItem, setSelectedItem] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeSchoolYearDialog, setActiveSchoolYearDialog] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(1);
   const [lessonPlans, setLessonPlans] = useState([]);
+  const [dropdownOpen, setDropDownOpen] = useState(false);
   const menuOpen = Boolean(anchorEl);
   const [counts, setCounts] = useState({
     teacher_count: 0,
@@ -124,14 +132,20 @@ const ViewLessonPlan = () => {
   const fetchLessonPlans = async () => {
     try {
       setDataLoading(true);
-      console.log("loading true");
       const data = await getLessonPlan();
       setLessonPlans(data);
     } catch (e) {
-      console.log("Error boss:", e);
+      console.error("Fetch Lesson Plan Error:", e);
     } finally {
       setDataLoading(false);
-      console.log("loading false");
+    }
+  };
+
+  const readNotifications = async (notification_id, notification) => {
+    try {
+      await markNotificationAsRead(notification_id, notification);
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -142,8 +156,30 @@ const ViewLessonPlan = () => {
   }, [loading]);
 
   useEffect(() => {
-    console.log("modalnotif in admin lesson plan:", modalNotification);
-  }, [modalNotification]);
+    const planIdFromURL = searchParams.get("planId");
+
+    if (planIdFromURL && lessonPlans.length > 0) {
+      const foundItem = lessonPlans.find(
+        (item) => item.plan_id.toString() === planIdFromURL,
+      );
+
+      console.log("Found IT:", foundItem);
+
+      if (foundItem) {
+        setSelectedItem(foundItem);
+        setActiveTab(foundItem.quarter);
+      }
+    }
+  }, [searchParams, lessonPlans]);
+
+  //will probably transfer to provider
+  // useEffect(() => {
+  //   const unreadNotifications = modalNotification.filter(
+  //     (n) => n.is_read === false,
+  //   ).length;
+
+  //   setUnreadNotification(unreadNotifications);
+  // }, [modalNotification]);
 
   const filteredData = useMemo(() => {
     return lessonPlans.filter((item) => item.quarter === activeTab);
@@ -152,7 +188,7 @@ const ViewLessonPlan = () => {
   return (
     <div className="flex flex-col w-screen h-screen">
       <CssBaseline />
-      <span className="bg-blue-400">
+      <span className=" opacity-90 w-full z-10 bg-dashboard drop-shadow-2xl shadow-lg">
         <Toolbar>
           <Box
             component="img"
@@ -167,27 +203,59 @@ const ViewLessonPlan = () => {
           >
             Set Active School Year
           </div>
-          <div className="dropdown dropdown-end">
+          <div className={"dropdown dropdown-end"}>
             <div
               tabIndex={0}
               role="button"
-              className="btn btn-outline text-xxs w-10 m-1"
+              className="btn btn-ghost m-1 relative"
             >
-              Click ⬇️
+              <FaBell className="size-5" />
+              {unreadNotification > 0 && (
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white font-bold text-xxs w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                  {unreadNotification}
+                </div>
+              )}
             </div>
 
-            <div
-              tabIndex="-1"
-              className="dropdown-content menu bg-base-100 rounded-box z-1 w-50 p-2 shadow-sm"
-            >
+            <ul className="dropdown-content menu rounded-box z-1 w-50 sm:w-100 p-2 shadow-sm gap-y-3 bg-gray-300">
               {modalNotification.map((notif) => {
+                const formattedDate = new Date(notif.created_at).toLocaleString(
+                  "en-US",
+                  {
+                    year: "numeric",
+                    month: "long",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  },
+                );
                 return (
-                  <div key={notif.notification_id}>
-                    <a href={notif.link}>{notif.message}</a>
-                  </div>
+                  <li key={notif.notification_id} className={`rounded-lg `}>
+                    <Link
+                      onClick={() =>
+                        readNotifications(notif.notification_id, notif)
+                      }
+                      to={`${frontendURL}/view/?planId=${notif.link}`}
+                      className="flex flex-col items-start relative"
+                    >
+                      <div
+                        className={`${notif.is_read ? "hidden" : "absolute"} top-1 right-1 rounded-full bg-red-500 size-3`}
+                      />
+                      <div
+                        className={`text-xxs sm:text-base ${notif.is_read ? "font-normal" : "font-bold"}`}
+                      >
+                        {notif.message}
+                      </div>
+                      <div
+                        className={`text-xxs sm:text-base ${notif.is_read ? "font-normal" : "font-bold"}`}
+                      >
+                        {formattedDate}
+                      </div>
+                    </Link>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </div>
 
           <IconButton
@@ -240,12 +308,18 @@ const ViewLessonPlan = () => {
               <div className="text-xxs sm:text-sm md:text-base">
                 <h1 className="font-bold">All Lesson Plan Submissions</h1>
                 <div>
-                  Review and manage teacher submissions organized by week
+                  Review and manage teacher submissions organized by Quarters
                 </div>
               </div>
-              <div className="text-xs sm:text-sm md:text-base">
-                All Teachers
-              </div>
+              {/* <select
+                value={queryParams}
+                onChange={(e) => setQueryParams(e.target.value)}
+                className="text-xss sm:text-sm md:text-base bg-gray-300 rounded-md p-1"
+              >
+                <option>All Lesson Plans</option>
+                <option>Status</option>
+                <option>Late</option>
+              </select> */}
             </div>
             <div className="flex flex-row tabs tabs-box tabs-xs  bg-gray-300 rounded-full justify-between p-1 gap-2 mb-4 w-full">
               {tabsMock.map((tab) => (
@@ -263,6 +337,8 @@ const ViewLessonPlan = () => {
 
             <div className="bg-white rounded-md flex flex-1 min-h-0 overflow-y-auto">
               <TabContent
+                selectedItem={selectedItem}
+                setSelectedItem={setSelectedItem}
                 data={filteredData}
                 refreshLessonPlan={fetchLessonPlans}
                 loading={dataLoading}

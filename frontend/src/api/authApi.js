@@ -45,3 +45,25 @@ export const logoutUser = async () => {
     throw e;
   }
 };
+
+export const resetPassword = async (email) => {
+  try {
+    const response = await api.post("/djoser/users/reset_password/", { email });
+    return response;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const resetPasswordConfirm = async (uid, token, new_password) => {
+  try {
+    const response = await api.post("/djoser/users/reset_password_confirm/", {
+      uid,
+      token,
+      new_password,
+    });
+    return response;
+  } catch (e) {
+    throw e;
+  }
+};

@@ -8,6 +8,7 @@ import ViewAdminLessonPlan from "./pages/admin/ViewAdminLessonPlan";
 import SubView from "./components/quatersub/Subview";
 import QuarterView from "./components/quaterview/Quaterview";
 import ListSubmit from "./components/sectionpages/ViewLessoTeacherPlan";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 
 function App() {
   return (
@@ -28,6 +29,10 @@ function App() {
           <Route path="/view" element={<ViewAdminLessonPlan />} />
           <Route path="/submitlist" element={<ListSubmit />} />
         </Route>
+        <Route
+          path="/password/reset/confirm/:uid/:token"
+          element={<ForgotPassword />}
+        />
       </Routes>
     </BrowserRouter>
   );
